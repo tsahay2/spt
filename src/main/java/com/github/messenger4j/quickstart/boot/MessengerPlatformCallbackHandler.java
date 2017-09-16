@@ -130,7 +130,7 @@ public class MessengerPlatformCallbackHandler {
             logger.debug("Processed callback payload successfully");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (MessengerVerificationException e) {
-            logger.warn("Processing of callback payload failed: {}", e.getMessage());
+            logger.warn("Processing of callback payload failed: {} with payload {} and signature {}", e.getMessage(),payload,signature);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
