@@ -137,7 +137,7 @@ public class MessengerPlatformCallbackHandler {
 
     private TextMessageEventHandler newTextMessageEventHandler() {
         return event -> {
-            logger.info("Received TextMessageEvent: {}", event);
+            logger.info("Received TextMessageEvent: {}", event.toString());
 
             final String messageId = event.getMid();
             final String messageText = event.getText();
