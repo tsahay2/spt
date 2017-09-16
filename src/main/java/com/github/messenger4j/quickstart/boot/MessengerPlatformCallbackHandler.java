@@ -378,7 +378,7 @@ public class MessengerPlatformCallbackHandler {
 
             logger.info("Received quick reply for message '{}' with payload '{}'", messageId, quickReplyPayload);
 
-            sendTextMessage(senderId, "Quick reply tapped");
+            sendTextMessage(senderId, "You selected "+quickReplyPayload+". Please wait.");
         };
     }
 
