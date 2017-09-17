@@ -150,11 +150,12 @@ public class MessengerPlatformCallbackHandler {
 
             try {
                 switch (messageText.toLowerCase()) {
-                    case "Hi":
-                    case "Hello":
-                    case "Greetings":
-                    case "Hola":
+                    case "hi":
+                    case "hello":
+                    case "greetings":
+                    case "hola":
                         sendEntryOptions(senderId);
+                        break;
                     case "image":
                         sendImageMessage(senderId);
                         break;
