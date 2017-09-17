@@ -33,8 +33,9 @@ import com.github.messenger4j.send.buttons.Button;
 import com.github.messenger4j.send.templates.ButtonTemplate;
 import com.github.messenger4j.send.templates.GenericTemplate;
 import com.github.messenger4j.send.templates.ReceiptTemplate;
-import java.util.Date;
-import java.util.List;
+
+import java.util.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -98,7 +99,7 @@ public class MessengerPlatformCallbackHandler {
 
     /**
      * Webhook verification endpoint.
-     *
+     * <p>
      * The passed verification token (as query parameter) must match the configured verification token.
      * In case this is true, the passed challenge string must be returned by this endpoint.
      */
@@ -130,7 +131,7 @@ public class MessengerPlatformCallbackHandler {
             logger.debug("Processed callback payload successfully");
             return ResponseEntity.status(HttpStatus.OK).build();
         } catch (MessengerVerificationException e) {
-            logger.warn("Processing of callback payload failed: {} with payload {} and signature {}", e.getMessage(),payload,signature);
+            logger.warn("Processing of callback payload failed: {} with payload {} and signature {}", e.getMessage(), payload, signature);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
     }
@@ -149,6 +150,11 @@ public class MessengerPlatformCallbackHandler {
 
             try {
                 switch (messageText.toLowerCase()) {
+                    case "Hi":
+                    case "Hello":
+                    case "Greetings":
+                    case "Hola":
+                        sendEntryOptions(senderId);
                     case "image":
                         sendImageMessage(senderId);
                         break;
@@ -212,6 +218,26 @@ public class MessengerPlatformCallbackHandler {
         };
     }
 
+    private void sendEntryOptions(String recipientId) throws MessengerApiException, MessengerIOException {
+        this.sendClient.sendSenderAction(recipientId, SenderAction.TYPING_ON);
+        ArrayList<String> quickTextList = new ArrayList<>();
+        quickTextList.add("Bollywood");
+        quickTextList.add("EDM");
+        quickTextList.add("Romance");
+        genericQuickText(quickTextList,recipientId);
+        this.sendClient.sendSenderAction(recipientId, SenderAction.TYPING_OFF);
+    }
+
+    private void genericQuickText(ArrayList<String> quickTextList,String recipientId) throws MessengerApiException, MessengerIOException {
+        QuickReply.ListBuilder listBuilder = QuickReply.newListBuilder();
+        for (String quickText :
+                quickTextList) {
+            listBuilder.addTextQuickReply(quickText,"").toList();
+        }
+             this.sendClient.sendTextMessage(recipientId,"Tell me your party mood",listBuilder.build());
+
+    }
+
     private void sendImageMessage(String recipientId) throws MessengerApiException, MessengerIOException {
         this.sendClient.sendImageAttachment(recipientId, RESOURCE_URL + "/assets/rift.png");
     }
@@ -257,19 +283,19 @@ public class MessengerPlatformCallbackHandler {
 
         final GenericTemplate genericTemplate = GenericTemplate.newBuilder()
                 .addElements()
-                    .addElement("rift")
-                        .subtitle("Next-generation virtual reality")
-                        .itemUrl("https://www.oculus.com/en-us/rift/")
-                        .imageUrl(RESOURCE_URL + "/assets/rift.png")
-                        .buttons(riftButtons)
-                        .toList()
-                    .addElement("touch")
-                        .subtitle("Your Hands, Now in VR")
-                        .itemUrl("https://www.oculus.com/en-us/touch/")
-                        .imageUrl(RESOURCE_URL + "/assets/touch.png")
-                        .buttons(touchButtons)
-                        .toList()
-                    .done()
+                .addElement("rift")
+                .subtitle("Next-generation virtual reality")
+                .itemUrl("https://www.oculus.com/en-us/rift/")
+                .imageUrl(RESOURCE_URL + "/assets/rift.png")
+                .buttons(riftButtons)
+                .toList()
+                .addElement("touch")
+                .subtitle("Your Hands, Now in VR")
+                .itemUrl("https://www.oculus.com/en-us/touch/")
+                .imageUrl(RESOURCE_URL + "/assets/touch.png")
+                .buttons(touchButtons)
+                .toList()
+                .done()
                 .build();
 
         this.sendClient.sendTemplate(recipientId, genericTemplate);
@@ -281,29 +307,29 @@ public class MessengerPlatformCallbackHandler {
         final ReceiptTemplate receiptTemplate = ReceiptTemplate.newBuilder("Peter Chang", uniqueReceiptId, "USD", "Visa 1234")
                 .timestamp(1428444852L)
                 .addElements()
-                    .addElement("Oculus Rift", 599.00f)
-                        .subtitle("Includes: headset, sensor, remote")
-                        .quantity(1)
-                        .currency("USD")
-                        .imageUrl(RESOURCE_URL + "/assets/riftsq.png")
-                        .toList()
-                    .addElement("Samsung Gear VR", 99.99f)
-                        .subtitle("Frost White")
-                        .quantity(1)
-                        .currency("USD")
-                        .imageUrl(RESOURCE_URL + "/assets/gearvrsq.png")
-                        .toList()
-                    .done()
+                .addElement("Oculus Rift", 599.00f)
+                .subtitle("Includes: headset, sensor, remote")
+                .quantity(1)
+                .currency("USD")
+                .imageUrl(RESOURCE_URL + "/assets/riftsq.png")
+                .toList()
+                .addElement("Samsung Gear VR", 99.99f)
+                .subtitle("Frost White")
+                .quantity(1)
+                .currency("USD")
+                .imageUrl(RESOURCE_URL + "/assets/gearvrsq.png")
+                .toList()
+                .done()
                 .addAddress("1 Hacker Way", "Menlo Park", "94025", "CA", "US").done()
                 .addSummary(626.66f)
-                    .subtotal(698.99f)
-                    .shippingCost(20.00f)
-                    .totalTax(57.67f)
-                    .done()
+                .subtotal(698.99f)
+                .shippingCost(20.00f)
+                .totalTax(57.67f)
+                .done()
                 .addAdjustments()
-                    .addAdjustment().name("New Customer Discount").amount(-50f).toList()
-                    .addAdjustment().name("$100 Off Coupon").amount(-100f).toList()
-                    .done()
+                .addAdjustment().name("New Customer Discount").amount(-50f).toList()
+                .addAdjustment().name("$100 Off Coupon").amount(-100f).toList()
+                .done()
                 .build();
 
         this.sendClient.sendTemplate(recipientId, receiptTemplate);
@@ -378,7 +404,7 @@ public class MessengerPlatformCallbackHandler {
 
             logger.info("Received quick reply for message '{}' with payload '{}'", messageId, quickReplyPayload);
 
-            sendTextMessage(senderId, "You selected "+quickReplyPayload+". Please wait.");
+            sendTextMessage(senderId, "You selected " + quickReplyPayload + ". Please wait.");
         };
     }
 
