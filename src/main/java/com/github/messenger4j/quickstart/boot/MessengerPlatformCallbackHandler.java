@@ -233,7 +233,7 @@ public class MessengerPlatformCallbackHandler {
         QuickReply.ListBuilder listBuilder = QuickReply.newListBuilder();
         for (String quickText :
                 quickTextList) {
-            listBuilder.addTextQuickReply(quickText,"").toList();
+            listBuilder.addTextQuickReply(quickText,"PAYLOAD").toList();
         }
              this.sendClient.sendTextMessage(recipientId,"Tell me your party mood",listBuilder.build());
 
